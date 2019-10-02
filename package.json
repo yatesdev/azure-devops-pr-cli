@@ -1,0 +1,18 @@
+{
+  "name": "azure-devops-pr-cli",
+  "version": "1.0.0",
+  "description": "CLI to view active pull requests on Azure DevOps.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mike Yates <mike@yatesdev.com>",
+  "license": "ISC",
+  "dependencies": {
+    "azure-devops-node-api": "9.0.1",
+    "commander": "3.0.2",
+    "dotenv-safe": "8.1.0",
+    "inquirer": "7.0.0",
+    "open": "6.4.0"
+  }
+}
