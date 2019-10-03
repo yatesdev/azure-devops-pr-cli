@@ -111,7 +111,7 @@ const main = async() => {
 
   if (program.all) {
     projectSelection = {
-      project: projects.reduce((array, project) => [project, ...array], [])
+      project: projects
     };
   } else {
     projectSelection = await inquirer.prompt(projectSelectorQuestionFactory(projects));
