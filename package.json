@@ -1,6 +1,6 @@
 {
   "name": "azure-devops-pr-cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "CLI to view active pull requests on Azure DevOps.",
   "author": "Mike Yates <mike@yatesdev.com>",
   "repository": {
