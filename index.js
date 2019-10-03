@@ -58,13 +58,27 @@ const resetConfigHandler = () => {
   return;
 };
 
-const firstRunConfig = async() => {
-  if(fs.existsSync(configFilePath)) { return; }
-  const config = await inquirer.prompt(envFirstRunQuestionFactory());
-  fs.writeFileSync(configFilePath,
-   `ORG_URL=${config.orgUrl}
-    AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}`);
+const configBuilder = async() => {
+  if(!fs.existsSync(configFilePath)) {
+    const config = await inquirer.prompt(envFirstRunQuestionFactory());
+    fs.writeFileSync(configFilePath,
+    `ORG_URL=${config.orgUrl}
+     AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}`);
+  }
+  return dotenv.config({ path: configFilePath }).parsed;
 };
+
+const apiFactory = async(config) => {
+  const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
+  const connection = new azdev.WebApi(config.ORG_URL, authHandler);
+  const projectApi = await connection.getCoreApi();
+  const gitApi = await connection.getGitApi();
+
+  return {
+    projectApi,
+    gitApi
+  };
+}
 
 const main = async() => {
   program
@@ -78,15 +92,10 @@ const main = async() => {
     return;
   }
 
-  await firstRunConfig();
-  const config = dotenv.config({ path: configFilePath }).parsed;
+  const config = await configBuilder();
+  const { projectApi, gitApi } = await apiFactory(config);
 
-  const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
-  const connection = new azdev.WebApi(config.ORG_URL, authHandler);
-
-  const projectClient = await connection.getCoreApi();
-  const gitClient = await connection.getGitApi();
-  const projects = await projectClient.getProjects();
+  const projects = await projectApi.getProjects();
 
   let projectSelection;
 
@@ -98,12 +107,13 @@ const main = async() => {
     projectSelection = await inquirer.prompt(projectSelectorQuestionFactory(projects));
   }
 
-  const pullRequests = await Promise.all(projectSelection.project.map((project) => 
-    gitClient.getPullRequestsByProject(project.id, { status: 'active'})))
+  const prByProjectRequests = projectSelection.project.map((project) => 
+    gitApi.getPullRequestsByProject(project.id, { status: 'active'}));
+
+  const pullRequests = await Promise.all(prByProjectRequests)
     .then((prsByProject) => {
         return [].concat(...prsByProject);
     });
-
 
   if (pullRequests.length == 0) {
     console.log(`Yay! No active PRs for ${program.all ? 'all projects' : projectSelection.project[0].name}`);
