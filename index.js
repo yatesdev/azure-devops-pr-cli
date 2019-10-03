@@ -1,7 +1,8 @@
+#!/usr/bin/env node
 const azdev = require('azure-devops-node-api');
 const inquirer = require('inquirer');
 const program = require('commander');
-const config = require('dotenv-safe').config().parsed;
+const config = require('dotenv').config().parsed;
 const open = require('open');
 
 const projectSelectorQuestionFactory = (projects) => [{
@@ -32,15 +33,16 @@ const prSelectorQuestionFactory = (pullRequests) => [{
 }];
 
 const main = async() => {
-  program.option('-a, --all', 'Grab PRs from all projects');
-  program.parse(process.argv);
+  program
+    .option('-a, --all', 'Grab PRs from all projects')
+    .parse(process.argv);
 
-  let authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
-  let connection = new azdev.WebApi(config.ORG_URL, authHandler);
+  const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
+  const connection = new azdev.WebApi(config.ORG_URL, authHandler);
 
-  let projectClient = await connection.getCoreApi();
-  let gitClient = await connection.getGitApi();
-  let projects = await projectClient.getProjects();
+  const projectClient = await connection.getCoreApi();
+  const gitClient = await connection.getGitApi();
+  const projects = await projectClient.getProjects();
 
   let projectSelection;
 
