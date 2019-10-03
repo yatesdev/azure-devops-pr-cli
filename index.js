@@ -62,9 +62,9 @@ const resetConfigHandler = () => {
 const firstRunConfig = async() => {
   if(fs.existsSync(configFilePath)) { return; }
   const config = await inquirer.prompt(envFirstRunQuestionFactory());
-  fs.writeFileSync(configFilePath, '');
-  fs.appendFileSync(configFilePath, `ORG_URL=${config.orgUrl}\n`);
-  fs.appendFileSync(configFilePath, `AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}\n`);
+  fs.writeFileSync(configFilePath,
+   `ORG_URL=${config.orgUrl}
+    AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}`);
 };
 
 const main = async() => {
