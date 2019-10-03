@@ -12,7 +12,6 @@ npm i -g azure-devops-pr-cli
 
 ## Usage
 
-On first run, you will be prompted for your Azure Devops URL, as well as a Personal Access Token.
 ```bash
 # Prompts for which project to view active pull requests from
 adpr
@@ -23,6 +22,13 @@ adpr -a
 # Clears first run configuration
 adpr --reset
 ```
+
+On first run, you will be prompted for your Azure Devops URL, as well as a Personal Access Token (PAT).
+
+PAT must have the following scopes:
+- Code - Read
+- Project & Team - Read
+- User Profile - Read
 
 ## Future Development Goals
 - Get working with `npx` rather than global install
