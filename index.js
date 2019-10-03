@@ -22,6 +22,7 @@ const projectSelectorQuestionFactory = (projects) => [{
     );
   }
 }];
+
 const prSelectorQuestionFactory = (pullRequests) => [{
   type: 'list',
   name: 'pullRequest',
@@ -95,9 +96,11 @@ const main = async() => {
     projectSelection = await inquirer.prompt(projectSelectorQuestionFactory(projects));
   }
 
-  const pullRequests = await Promise.all(projectSelection.project.map((project) => gitClient.getPullRequestsByProject(project.id, { status: 'active'}))).then((prsByProject) => {
-    return [].concat(...prsByProject);
-  });
+  const pullRequests = await Promise.all(projectSelection.project.map((project) => 
+    gitClient.getPullRequestsByProject(project.id, { status: 'active'})))
+    .then((prsByProject) => {
+        return [].concat(...prsByProject);
+    });
 
 
   if (pullRequests.length == 0) {
