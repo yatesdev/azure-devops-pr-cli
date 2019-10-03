@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+
 const azdev = require('azure-devops-node-api');
 const inquirer = require('inquirer');
 const program = require('commander');
-const config = require('dotenv').config().parsed;
+const dotenv = require('dotenv');
 const open = require('open');
+const fs = require('fs');
 
 const projectSelectorQuestionFactory = (projects) => [{
   type: 'list',
@@ -22,7 +24,7 @@ const projectSelectorQuestionFactory = (projects) => [{
 const prSelectorQuestionFactory = (pullRequests) => [{
   type: 'list',
   name: 'pullRequest',
-  message: 'Pull Request:',
+  message: 'Which PR to view?',
   choices() {
     return pullRequests.map((pullRequest) => ({
       name: program.all ? `${pullRequest.repository.project.name}: ${pullRequest.title}` : pullRequest.title,
@@ -32,10 +34,44 @@ const prSelectorQuestionFactory = (pullRequests) => [{
   }
 }];
 
+const envFirstRunQuestionFactory = () => [
+  {
+    type: 'input',
+    name: 'orgUrl',
+    message: 'Azure DevOps instance URL:',
+  },{
+    type: 'input',
+    name: 'token',
+    message: 'Personal Access Token:'
+  }
+];
+
+const firstRunConfig = async() => {
+  if(fs.existsSync('./.env')) { return; }
+  const config = await inquirer.prompt(envFirstRunQuestionFactory());
+  fs.writeFileSync('./.env', '');
+  fs.appendFileSync('./.env', `ORG_URL=${config.orgUrl}\n`);
+  fs.appendFileSync('./.env', `AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}\n`);
+};
+
 const main = async() => {
   program
     .option('-a, --all', 'Grab PRs from all projects')
+    .option('--reset', 'Clears existing configuration')
     .parse(process.argv);
+  
+  if (program.reset) {
+    if (fs.existsSync('./.env')) {
+      fs.unlinkSync('./.env');
+      console.log('Deleted config...');
+      return;
+    }
+    console.log('No existing config...');
+    return;
+  }
+
+  await firstRunConfig();
+  const config = dotenv.config().parsed;
 
   const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
   const connection = new azdev.WebApi(config.ORG_URL, authHandler);
