@@ -8,11 +8,13 @@
     "url": "git://github.com/yatesdev/azure-devops-pr-cli.git"
   },
   "license": "ISC",
-  "main": "index.js",
-  "bin": "./index.js",
+  "bin": {
+    "adpr": "bin/adpr.js"
+  },
   "engines": {
     "node": ">=10"
   },
+  "preferGlobal": true,
   "dependencies": {
     "azure-devops-node-api": "9.0.1",
     "commander": "3.0.2",

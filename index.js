@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const azdev = require('azure-devops-node-api');
 const inquirer = require('inquirer');
 const program = require('commander');
@@ -113,4 +111,4 @@ const main = async() => {
   await open(prUrl);
 }
 
-module.exports = main();
+module.exports = main;

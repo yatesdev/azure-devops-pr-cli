@@ -15,13 +15,13 @@ npm i -g azure-devops-pr-cli
 On first run, you will be prompted for your Azure Devops URL, as well as a Personal Access Token.
 ```bash
 # Prompts for which project to view active pull requests from
-azure-devops-pr-cli
+adpr
 
 # Shows all active pull requests across all projects
-azure-devops-pr-cli -a
+adpr -a
 
 # Clears first run configuration
-azure-devops-pr-cli --reset
+adpr --reset
 ```
 
 ## Future Development Goals
