@@ -6,6 +6,9 @@ const program = require('commander');
 const dotenv = require('dotenv');
 const open = require('open');
 const fs = require('fs');
+const path = require('path');
+
+const configFilePath = path.join( __dirname,'./.env');
 
 const projectSelectorQuestionFactory = (projects) => [{
   type: 'list',
@@ -47,11 +50,11 @@ const envFirstRunQuestionFactory = () => [
 ];
 
 const firstRunConfig = async() => {
-  if(fs.existsSync('./.env')) { return; }
+  if(fs.existsSync(configFilePath)) { return; }
   const config = await inquirer.prompt(envFirstRunQuestionFactory());
-  fs.writeFileSync('./.env', '');
-  fs.appendFileSync('./.env', `ORG_URL=${config.orgUrl}\n`);
-  fs.appendFileSync('./.env', `AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}\n`);
+  fs.writeFileSync(configFilePath, '');
+  fs.appendFileSync(configFilePath, `ORG_URL=${config.orgUrl}\n`);
+  fs.appendFileSync(configFilePath, `AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}\n`);
 };
 
 const main = async() => {
@@ -61,8 +64,8 @@ const main = async() => {
     .parse(process.argv);
   
   if (program.reset) {
-    if (fs.existsSync('./.env')) {
-      fs.unlinkSync('./.env');
+    if (fs.existsSync(configFilePath)) {
+      fs.unlinkSync(configFilePath);
       console.log('Deleted config...');
       return;
     }
@@ -71,7 +74,7 @@ const main = async() => {
   }
 
   await firstRunConfig();
-  const config = dotenv.config().parsed;
+  const config = dotenv.config({ path: configFilePath }).parsed;
 
   const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
   const connection = new azdev.WebApi(config.ORG_URL, authHandler);
