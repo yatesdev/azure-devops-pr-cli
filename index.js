@@ -65,7 +65,6 @@ const resetConfigHandler = () => {
     return;
   }
   console.log('No existing config...');
-  return;
 };
 
 const configBuilder = async() => {
