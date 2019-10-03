@@ -70,6 +70,7 @@ const main = async() => {
   program
     .option('-a, --all', 'Grab PRs from all projects')
     .option('--reset', 'Clears existing configuration')
+    .version(require('./package.json').version)
     .parse(process.argv);
   
   if (program.reset) {
