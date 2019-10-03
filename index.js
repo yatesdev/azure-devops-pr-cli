@@ -49,6 +49,16 @@ const envFirstRunQuestionFactory = () => [
   }
 ];
 
+const resetConfigHandler = () => {
+  if (fs.existsSync(configFilePath)) {
+    fs.unlinkSync(configFilePath);
+    console.log('Deleted config...');
+    return;
+  }
+  console.log('No existing config...');
+  return;
+};
+
 const firstRunConfig = async() => {
   if(fs.existsSync(configFilePath)) { return; }
   const config = await inquirer.prompt(envFirstRunQuestionFactory());
@@ -64,13 +74,7 @@ const main = async() => {
     .parse(process.argv);
   
   if (program.reset) {
-    if (fs.existsSync(configFilePath)) {
-      fs.unlinkSync(configFilePath);
-      console.log('Deleted config...');
-      return;
-    }
-    console.log('No existing config...');
-    return;
+    resetConfigHandler();
   }
 
   await firstRunConfig();
