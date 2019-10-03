@@ -75,6 +75,7 @@ const main = async() => {
   
   if (program.reset) {
     resetConfigHandler();
+    return;
   }
 
   await firstRunConfig();
