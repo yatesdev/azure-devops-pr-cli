@@ -41,6 +41,16 @@ const envFirstRunQuestionFactory = () => [
     type: 'input',
     name: 'orgUrl',
     message: 'Azure DevOps instance URL:',
+    validate: function(value) {
+      var pass = value.match(
+        /^(http(s)?:\/\/)[\w.-]+(?:\.[\w]+)+$/i
+      );
+      if (pass) {
+        return true;
+      }
+
+      return 'Please enter a valid url (no trailing slash)';
+    }
   },{
     type: 'input',
     name: 'token',
