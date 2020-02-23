@@ -1,6 +1,8 @@
 const dotenv = require('dotenv');
 const fs = require('fs');
+const inquirer = require('inquirer');
 const path = require('path');
+const PromptFactory = require('./PromptFactory');
 
 const configFilePath = path.join( __dirname,'./.env');
 
