@@ -1,32 +1,11 @@
 const inquirer = require('inquirer');
 const program = require('commander');
-const dotenv = require('dotenv');
 const open = require('open');
-const fs = require('fs');
-const path = require('path');
-const { apiFactory } = require('./apiFactory');
-const PromptFactory = require('./prompts');
 
-const configFilePath = path.join( __dirname,'./.env');
+const ApiFactory = require('./ApiFactory');
+const ConfigFactory = require('./ConfigFactory');
+const PromptFactory = require('./PromptFactory');
 
-const resetConfigHandler = () => {
-  if (fs.existsSync(configFilePath)) {
-    fs.unlinkSync(configFilePath);
-    console.log('Deleted config...');
-    return;
-  }
-  console.log('No existing config...');
-};
-
-const configBuilder = async() => {
-  if(!fs.existsSync(configFilePath)) {
-    const config = await inquirer.prompt(firstRunPrompt());
-    fs.writeFileSync(configFilePath,
-    `ORG_URL=${config.orgUrl}
-     AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN=${config.token}`);
-  }
-  return dotenv.config({ path: configFilePath }).parsed;
-};
 
 const main = async() => {
   program
@@ -35,19 +14,9 @@ const main = async() => {
     .version(require('./package.json').version)
     .parse(process.argv);
   
-  if (program.reset) {
-    resetConfigHandler();
-    return;
-  }
-
-  const config = await configBuilder();
-  const {
-    projectPrompt,
-    prSelectorPrompt,
-    firstRunPrompt
-  } = PromptFactory(config);
-  console.log(prSelectorPrompt);
-  const { projectApi, gitApi } = await apiFactory(config);
+  const config = await ConfigFactory(program);
+  const promptFactory = new PromptFactory(config);
+  const { projectApi, gitApi } = await ApiFactory(config);
 
   const projects = await projectApi.getProjects();
 
@@ -58,7 +27,7 @@ const main = async() => {
       project: projects
     };
   } else {
-    projectSelection = await inquirer.prompt(projectPrompt(projects));
+    projectSelection = await inquirer.prompt(promptFactory.projectSelection(projects));
   }
 
   const prByProjectRequests = projectSelection.project.map((project) => 
@@ -74,7 +43,7 @@ const main = async() => {
     return;
   }
 
-  const prAnswer = await inquirer.prompt(prSelectorPrompt(pullRequests, { showAll: program.all }));
+  const prAnswer = await inquirer.prompt(promptFactory.pullRequestSelection(pullRequests, { showAll: program.all }));
 
   const prUrl = `${config.ORG_URL}/${prAnswer.pullRequest.repository.project.id}/_git/${prAnswer.pullRequest.repository.id}/pullrequest/${prAnswer.pullRequest.pullRequestId}`;
   await open(prUrl);

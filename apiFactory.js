@@ -1,6 +1,6 @@
 const azdev = require('azure-devops-node-api');
 
-const apiFactory = async(config) => {
+const ApiFactory = async(config) => {
   const authHandler = azdev.getPersonalAccessTokenHandler(config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN);
   const connection = new azdev.WebApi(config.ORG_URL, authHandler);
   const projectApi = await connection.getCoreApi();
@@ -12,6 +12,4 @@ const apiFactory = async(config) => {
   };
 }
 
-module.exports = {
-  apiFactory
-}
+module.exports = ApiFactory;
